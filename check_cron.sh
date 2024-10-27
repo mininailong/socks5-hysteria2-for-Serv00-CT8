@@ -11,6 +11,7 @@ CRON_HYSTERIA="nohup /home/${USER_LOWER}/.hysteria/hysteria-server -c $HYSTERIA_
 PM2_PATH="/home/${USER_LOWER}/.npm-global/lib/node_modules/pm2/bin/pm2"
 CRON_JOB="*/12 * * * * $PM2_PATH resurrect >> /home/$USER/pm2_resurrect.log 2>&1"
 REBOOT_COMMAND="@reboot pkill -kill -u $USER && $PM2_PATH resurrect >> /home/$USER/pm2_resurrect.log 2>&1"
+NEZHA_DASHBOARD="/home/${USER_LOWER}/.nezha-dashboard"
 
 echo "检查并添加 crontab 任务"
 
@@ -45,6 +46,10 @@ else
     echo "添加 socks5 的 crontab 重启任务"
     (crontab -l | grep -F "@reboot pkill -kill -u $USER && ${CRON_S5}") || (crontab -l; echo "@reboot pkill -kill -u $USER && ${CRON_S5}") | crontab -
     (crontab -l | grep -F "* * pgrep -x \"s5\" > /dev/null || ${CRON_S5}") || (crontab -l; echo "*/12 * * * * pgrep -x \"s5\" > /dev/null || ${CRON_S5}") | crontab -
+  elif [ -e "${NEZHA_DASHBOARD}/start.sh" ]; then
+    echo "添加 nezha-dashboard 的 crontab 重启任务"
+    (crontab -l | grep -F "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") || (crontab -l; echo "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
+    (crontab -l; echo "*/12 * * * * pgrep -x "dashboard" > /dev/null || nohup /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
   fi
 fi
 
