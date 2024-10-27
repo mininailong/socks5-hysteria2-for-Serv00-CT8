@@ -46,11 +46,13 @@ else
     echo "添加 socks5 的 crontab 重启任务"
     (crontab -l | grep -F "@reboot pkill -kill -u $USER && ${CRON_S5}") || (crontab -l; echo "@reboot pkill -kill -u $USER && ${CRON_S5}") | crontab -
     (crontab -l | grep -F "* * pgrep -x \"s5\" > /dev/null || ${CRON_S5}") || (crontab -l; echo "*/12 * * * * pgrep -x \"s5\" > /dev/null || ${CRON_S5}") | crontab -
-  elif [ -e "${NEZHA_DASHBOARD}/start.sh" ]; then
-    echo "添加 nezha-dashboard 的 crontab 重启任务"
-    (crontab -l | grep -F "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") || (crontab -l; echo "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
-    (crontab -l; echo "*/12 * * * * pgrep -x "dashboard" > /dev/null || nohup /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
   fi
+fi
+
+if [ -e "${NEZHA_DASHBOARD}/start.sh" ]; then
+  echo "添加 nezha-dashboard 的 crontab 重启任务"
+  (crontab -l | grep -F "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") || (crontab -l; echo "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
+  (crontab -l; echo "*/12 * * * * pgrep -x "dashboard" > /dev/null || nohup /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
 fi
 
 echo "crontab 任务添加完成"
