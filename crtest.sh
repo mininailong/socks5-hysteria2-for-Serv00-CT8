@@ -15,6 +15,7 @@ CRON_NEZHA="nohup ${WORKDIR}/start.sh >/dev/null 2>&1 &"
 CRON_HYSTERIA="nohup ${HYSTERIA_WORKDIR}/web server -c ${HYSTERIA_CONFIG} >/dev/null 2>&1 &"
 PM2_PATH="${USER_HOME}/.npm-global/lib/node_modules/pm2/bin/pm2"
 CRON_JOB="*/12 * * * * $PM2_PATH resurrect >> ${USER_HOME}/pm2_resurrect.log 2>&1"
+NEZHA_DASHBOARD="/home/${USER_LOWER}/.nezha-dashboard"
 
 # 定义函数来添加 crontab 任务，减少重复代码
 add_cron_job() {
@@ -50,6 +51,12 @@ else
     echo "添加 Hysteria 的 crontab 重启任务"
     add_cron_job "@reboot pkill -kill -u $USER && ${CRON_HYSTERIA}"
     add_cron_job "*/12 * * * * pgrep -x \"web\" > /dev/null || ${CRON_HYSTERIA}"
+  fi
+
+  if [ -e "${NEZHA_DASHBOARD}/start.sh" ]; then
+    echo "添加 nezha-dashboard 的 crontab 重启任务"
+    (crontab -l | grep -F "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") || (crontab -l; echo "@reboot pkill -kill -u $USER && /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
+    (crontab -l; echo "*/12 * * * * pgrep -x "dashboard" > /dev/null || nohup /home/${USER}/.nezha-dashboard/start.sh >/dev/null 2>&1 &") | crontab -
   fi
 fi
 
